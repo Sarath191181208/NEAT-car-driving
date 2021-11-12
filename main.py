@@ -6,12 +6,12 @@ import sys
 import pickle
 
 from timer import Timer
-from Fitness import fitness_points
+from Fitness import WHITE, fitness_points
 
 
 (WIN_WIDTH, WIN_HEIGHT) = (600, 600)
 WIDGETS_WIDTH, WIDGETS_HEIGHT = (200, 600)
-MAP_IMAGE = pygame.image.load(os.path.join("assets", "easy.png"))
+MAP_IMAGE = pygame.image.load(os.path.join("assets", "extreme.png"))
 GENERATION = 0
 
 def PYtxt(txt: str, fontSize: int = 16, font: str = 'freesansbold.ttf', fontColour: tuple = (0, 0, 0)):
@@ -62,7 +62,7 @@ class Triangle():
 
 
 def draw(win,cars, points, *args):
-    win.fill((255,255,255))
+    # win.fill((255,255,255))
     pygame.draw.line(win, (0,0,0), (602,0), (602,594), 2)
     for arg in args:
         arg.draw(win)
@@ -95,6 +95,10 @@ def main(genomes, config):
     triangle = Triangle()
     # high_score_label = Label(WIN_WIDTH-50,60, "High Score : ",0)
 
+    # init map and score points
+    track = Map()
+    points = fitness_points(WIN_WIDTH, WIN_HEIGHT, track.img)
+
     # init cars, gens, nets
     nets = []
     cars = []
@@ -105,14 +109,14 @@ def main(genomes, config):
         g.fitness = 0
         nets.append(net)
         cars.append(Car(270, 500))
+        cars[-1].score_points = points
         genes.append(g)
-
-    track = Map()
-    points = fitness_points(WIN_WIDTH, WIN_HEIGHT, track.img)
-
+    best_idx = 0
     run = True
     while run:
         clock.tick(FPS)
+        WIN.fill(WHITE)
+        track.draw(WIN)
 
         if not game_end_timer.start:
             break
@@ -135,15 +139,14 @@ def main(genomes, config):
         for i, car in enumerate(cars):
             if car.is_alive():
                 alive += 1
-                car.update(track)
-                genes[i].fitness += car.get_score()
+                car.update(track, WIN)
+                genes[i].fitness = car.get_score()
             else:
                 # genes[i].fitness -= 5000
                 genes.pop(i)
                 nets.pop(i)
                 cars.pop(i)
 
-        best_idx = 0 
         max_so_far = 0 
         max_dis = 0
         for idx, val in enumerate(genes):
@@ -151,7 +154,8 @@ def main(genomes, config):
             max_dis = max(max_dis, dis)
             if val.fitness > max_so_far:
                 max_so_far = val.fitness
-                best_idx = idx
+                if genes[best_idx].fitness > max_so_far:
+                    best_idx = idx
         if len(cars) > 0:
             x,y = cars[best_idx].pos_
             triangle.x, triangle.y = x, y-10
@@ -169,7 +173,7 @@ def main(genomes, config):
         time_label.set(game_end_timer.get())
         if alive == 0:
             break
-        draw(WIN,cars,points, track, generation_label, alive_label, time_label, maxdis_label, triangle)
+        draw(WIN,cars,points, generation_label, alive_label, time_label, maxdis_label, triangle)
         game_end_timer.update()
 
         for event in pygame.event.get():

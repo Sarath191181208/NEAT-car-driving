@@ -14,6 +14,9 @@ CAR_IMAGE = pygame.transform.scale(CAR_IMAGE, (CAR_WIDTH, CAR_HEIGHT))
 def calc_dis(x1, y1, x2, y2):
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1)**2)
 
+def area(x1, y1, x2, y2, x3, y3):
+    return abs((x1*(y2-y3) + x2*(y3-y1) + x3*(y1-y2))/2)
+
 def colors_are_similar(c1, c2):
     # return c1 == c2
     try:
@@ -50,6 +53,8 @@ class Car:
         self.score_timer.start_timer()
 
         self.score = 0
+        self.score_points = None
+        self.passed_point = 0
 
     def draw(self, win):
         win.blit(self.blit_img_, self.pos_)
@@ -85,7 +90,7 @@ class Car:
         dist = int(math.sqrt(math.pow(x - self.center[0], 2) + math.pow(y - self.center[1], 2)))
         self.radars.append([(x, y), dist])
 
-    def update(self, track):
+    def update(self, track, win):
         # Set The Speed To 20 For The First Time
         # Only When Having 4 Output Nodes With Speed Up and Down
         if not self.speed_set_:
@@ -106,6 +111,24 @@ class Car:
         #updating score 
         self.score_timer.update()
         # self.distance_covered += self.vel
+        (x2, y2),(x3, y3) = self.score_points[self.passed_point]
+        x1, y1 = self.pos_ 
+        # ar = area(x1, y1, x2, y2, x3, y3)
+        d1 = calc_dis(x1, y1, x2, y2)
+        d2 = calc_dis(x1, y1, x3, y3)
+        d3 = calc_dis(x3, y3, x2, y2)
+
+        dis = 1.414*d3-(d1+d2)
+        # print(dis)
+
+        pnts = [(x1,y1), (x2,y2), (x3,y3)]
+        # ar = area(x1, y1, x2, y2, x3, y3)
+        # pygame.draw.polygon(surface=win, color=(255,0,0), points=pnts)
+        # print(ar)
+        if dis >0:
+            self.score += 10 
+            self.passed_point += 1
+            self.passed_point %= len(self.score_points)
 
 
         # Calculate New Center
@@ -147,15 +170,16 @@ class Car:
         # return [radar[1]/30 for radar in self.radars]
     
     def get_score(self):
-        return self.distance_covered
+        return self.score
         # return self.score
     
     def add_score(self):
-        x,y = self.pos_
-        xprev, yprev = self.previous_pos_
+        # x,y = self.pos_
+        # xprev, yprev = self.previous_pos_
 
-        dis = calc_dis(x,y, xprev,yprev)
+        # dis = calc_dis(x,y, xprev,yprev)
 
-        self.prev_pos_ = self.pos_
-        self.score += dis
-        self.distance_covered += int(dis)
+        # # self.prev_pos_ = self.pos_
+        # self.score += dis
+        # self.distance_covered += int(dis)
+        self.distance_covered = self.score

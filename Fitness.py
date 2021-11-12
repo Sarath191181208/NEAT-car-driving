@@ -135,9 +135,9 @@ class Grid():
             open_set_hash.remove(current)
             # if we reached end
             i += 1
-            if i == 5000:
-                print(self.end.get_pos())
-                print(current.get_pos())
+            if i == 7000:
+                # print(self.end.get_pos())
+                # print(current.get_pos())
                 self.points.append((current.get_pos()[1],current.get_pos()[0]))
                 i = 0
             # if self.end.get_pos()==current.get_pos():
@@ -251,7 +251,7 @@ def fitness_points(IMG_WIDTH, IMG_HEIGHT, MAP_IMAGE):
 
     pnts = []
     for pos in grid.points:
-        print(pos)
+        # print(pos)
 
         p1, p2 = None, None
         x, y = pos
@@ -306,7 +306,7 @@ def main():
     pygame.display.set_caption('')
     FPS = 60
     print("loaded map")
-    MAP_IMAGE = pygame.image.load(os.path.join("assets", "hard.png"))
+    MAP_IMAGE = pygame.image.load(os.path.join("assets", "easy.png"))
     MAP_IMAGE = pygame.transform.scale(MAP_IMAGE, (WIN_WIDTH, WIN_HEIGHT))
 
     print('clac pixels')
@@ -327,7 +327,7 @@ def main():
     # grid.draw(WIN)
     pnts = []
     for pos in grid.points:
-        print(pos)
+        # print(pos)
 
         p1, p2 = None, None
         x, y = pos
